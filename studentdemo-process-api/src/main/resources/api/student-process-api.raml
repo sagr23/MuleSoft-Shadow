@@ -1,0 +1,63 @@
+#%RAML 1.0
+title: Student Process API
+
+
+/student:
+  get:
+    queryParameters:
+      start-date:
+        description: start_date
+        type: date-only
+        required: false
+      end-date:
+        description: end_date
+        type: date-only
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            
+      500:
+        body:
+          application/json:
+            example: "Internal Error"
+              
+
+  post:
+    body:
+      application/json:
+        examples:
+          input: 
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: New Student added (but not really)
+
+  /{ID}:
+    get:      
+      responses:
+        200:
+          body:
+            application/json:
+             
+    delete:
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Flight deleted (but not really)
+    put:
+      body:
+        application/json:
+         
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Flight updated (but not really)
+            

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="6b1b735c-07a3-4f05-8170-442f790f80dc" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" database="training" />
+	</db:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="6bd49613-0443-48f4-a1fc-e5411c29b791" />
+	<flow name="assignment_6_file_processingFlow" doc:id="f3c7ebf3-3c9b-42ab-b69e-7d8ae3946327" >
+		<file:listener doc:name="On New or Updated File" doc:id="3fa830d4-a986-499b-8ae3-1684dc79f7e5" config-ref="File_Config" directory="C:\Users\shuagraw\Desktop\Mulesoft\demo\foreachinput" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="81a62a28-a158-47c1-ae5b-0d497c7ef729" message="#[payload + now()]"/>
+		<ee:transform doc:name="Transform Message" doc:id="2c3c8042-a48a-40c6-a677-e7522f67e783" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	name: $.name,
+	id: $.Emp_ID,
+	designation: $.desigmation,
+	email: $.email
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="9c3ce8c7-14e6-4afd-bff7-9038a5f7f230" >
+			<logger level="INFO" doc:name="Logger" doc:id="824245ed-163f-4fc2-980a-42f4b3036adc" />
+			<db:insert doc:name="Insert" doc:id="49619ac3-cdbc-4080-ac84-85db7b9383ea" config-ref="Database_Config">
+				<db:sql >insert into employee(Emp_id, name, email, desigmation) values(:id,:name,:email,:designation)</db:sql>
+				<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+			</db:insert>
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="0ba2d24e-f295-49f8-8741-8ad3247d6ba5" message="#[now()]"/>
+		<file:delete doc:name="Delete" doc:id="24b38066-d865-4cc0-bee8-3b8c13e36046" config-ref="File_Config" path="C:\Users\shuagraw\Desktop\Mulesoft\demo\foreachinput"/>
+	</flow>
+</mule>

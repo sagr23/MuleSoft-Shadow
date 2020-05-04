@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e89db072-c102-4d3e-867e-14414535daae" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<flow name="Copy_of_student-apiFlow" doc:id="17a98c31-4cab-49c0-b6d0-5703464ebfe4" >
+		<http:listener doc:name="Scatter gatter demo" doc:id="02e2bca6-dabb-441d-9b3c-8fd925c03b7c" config-ref="HTTP_Listener_config" path="/demo" />
+		<scatter-gather doc:name="Scatter-Gather" doc:id="f30402ae-377a-436c-97dd-9fd41407681e" >
+			<route >
+				<flow-ref doc:name="Flow Reference" doc:id="01d53b94-43f3-4c8c-ba69-339d52324463" name="flow1" />
+			</route>
+			<route >
+				<flow-ref doc:name="Flow Reference" doc:id="a3e67f6a-8135-41c8-b0e6-729c952df3a8" name="flow2" />
+			</route>
+			<route >
+				<flow-ref doc:name="Flow Reference" doc:id="0a36eb4f-dfed-423e-9ebf-50c349277913" name="flow3" />
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="ca2157a0-714e-4836-b0ea-d6dfcb9b35f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flattern:payload..payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="flow1" doc:id="f32e6fe0-3f8f-4748-947d-a97c8aa6a8c4" >
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="944d14eb-0811-47ef-98cb-24379b8c83bb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	add:20+10
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="flow2" doc:id="e2511079-cfaa-4d3c-9e26-1f592a9c1e4f" >
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="80adf40d-1b35-4c2f-bfa1-ec29cdad3478" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	sub:20-10
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="flow3" doc:id="8454b30f-1f55-4720-9aec-0e600a37ea7e" >
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="8013dc3d-7f19-4b88-8098-b52ca4ace563" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	multiply:20*10
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd 
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="batch_processing_csv_to_json" doc:id="f0211ccb-4613-44eb-9a46-bb451d71c774" >
+		<file:listener doc:name="New or Updated File" doc:id="0b18a3ba-5120-47ae-8303-917705a51ec3" config-ref="File_Config" directory="C:\Users\shuagraw\Desktop\Mulesoft\demo\input" recursive="false">
+			<scheduling-strategy >
+				<cron expression="0 15 10 ? * *" />
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="b096080c-c7f4-4edb-a15a-8639f5e3910f" message="#['start time----'++ now()]"/>
+		<set-variable value="#[now()]" doc:name="Set Variable" doc:id="4ab14220-725f-4d9f-a240-6537011f2f80" variableName="start_time"/>
+		<ee:transform doc:name="Transform Message" doc:id="3b7f7bff-9f83-4655-9581-e60a81a0b138" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+ payload map{
+	policyID: $.policyID,
+	name: $.county,
+	department: $.construction
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a80a2572-c68f-4235-bf0a-64cbbc124be6" />
+		<batch:job jobName="batch_csv_to_json_Batch_Job" doc:id="1394f7fd-5abb-4432-a55b-d31145c77dd9" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="904a82f8-b519-4ff2-8dbb-99565ab6c061" >
+					<file:write doc:name="Write" doc:id="1478e838-f411-423b-8579-d79245937ae2" config-ref="File_Config" path="C:\Users\shuagraw\Desktop\Mulesoft\demo\output\output.json" mode="APPEND" >
+					</file:write>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="3ab679d1-3cfe-4e5a-b6f7-5ac5caf9f140" message="#[payload]" />
+			</batch:on-complete>
+		</batch:job>
+		<logger level="INFO" doc:name="Logger" doc:id="ee31bc62-5aa2-4261-9fed-bea2e25305aa" message='#["Total time consumed-----" ++ vars.start_time -now()]'/>
+	</flow>
+	</mule>
